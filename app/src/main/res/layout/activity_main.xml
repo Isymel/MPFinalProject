@@ -40,7 +40,7 @@
                         android:layout_height="200dp"
                         android:layout_weight="1"
                         android:scaleType="fitCenter"
-                        app:srcCompat="@drawable/veryClear" />
+                        app:srcCompat="@drawable/perfectclear" />
 
                     <LinearLayout
                         android:layout_width="0dp"
@@ -59,6 +59,7 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
                             android:layout_weight="1"
+                            android:gravity="center"
                             android:text="TextView" />
 
                         <Space
@@ -67,11 +68,26 @@
                             android:layout_weight="1" />
 
                         <TextView
-                            android:id="@+id/feelTemperature"
+                            android:id="@+id/rainInfo"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
                             android:layout_weight="1"
+                            android:gravity="center"
+                            android:text="TextView" />
+
+                        <Space
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1" />
+
+                        <TextView
+                            android:id="@+id/curTemperature"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_weight="1"
+                            android:gravity="center"
                             android:text="TextView" />
 
                         <Space
@@ -85,6 +101,7 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
                             android:layout_weight="1"
+                            android:gravity="center"
                             android:text="TextView" />
 
                         <Space
