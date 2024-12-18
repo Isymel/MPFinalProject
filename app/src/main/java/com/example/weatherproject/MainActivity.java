@@ -2,6 +2,8 @@ package com.example.weatherproject;
 
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -24,11 +26,16 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.logging.Logger;
 
 class weatherInfor{
     LocalDateTime mDate = LocalDateTime.now();
 
     int todayOfWeek = mDate.getDayOfWeek().getValue();
+
+    public weatherInfor(){
+        mDate = mDate.minusDays(30);
+    }
 
     public weatherInfor(int targetDayOfWeek) {
         if (todayOfWeek != targetDayOfWeek) {
@@ -45,10 +52,11 @@ class weatherInfor{
     String getTime = mDate.format(formatHour);
 
     WeatherInformation wi = new WeatherInformation();
-    String weatherInfor;
+    String weatherInfo = null;
     {
         try {
-            weatherInfor = wi.searchWeather(getDate, getTime);
+            weatherInfo = wi.searchWeather(getDate, getTime);
+            Log.i("weatherInfoData", weatherInfo);
         } catch (IOException e) {
             Log.i("THREE_ERROR1", e.getMessage());
         } catch (JSONException e) {
@@ -56,7 +64,7 @@ class weatherInfor{
         }
     }
 
-    String[] weatherInforArray = weatherInfor.split(" ");
+    String[] weatherInforArray = weatherInfo.split(" ");
 
     String rainPercent = weatherInforArray[0];
     String rainState = weatherInforArray[1];
@@ -102,7 +110,7 @@ class weatherInfor{
             iv.setImageResource(R.drawable.shower);
         else if(this.rainState.equals("noRain")){
             if(this.cloudState.equals("perfectClear"))
-                iv.setImageResource(R.drawable.perfectClear);
+                iv.setImageResource(R.drawable.perfectclear);
             else if(this.cloudState.equals("veryClear"))
                 iv.setImageResource(R.drawable.veryclear);
             else if(this.cloudState.equals("aLittleClear"))
@@ -125,6 +133,14 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
+        ImageView weatherIcon = findViewById(R.id.weatherNow);
+        TextView selectedDate = findViewById(R.id.dateInfor);
+        TextView rainInfo = findViewById(R.id.rainInfo);
+        TextView curTemperature = findViewById(R.id.curTemperature);
+        TextView windSpeed = findViewById(R.id.windSpeed);
+        TextView maxTemperature = findViewById(R.id.maxTemperature);
+        TextView minTemperature = findViewById(R.id.minTemperature);
 
         int todayOfWeekC = LocalDate.now().getDayOfWeek().getValue();
         switch (todayOfWeekC){
@@ -151,13 +167,28 @@ public class MainActivity extends AppCompatActivity {
                 break;
         }
 
-        ImageView weatherIcon = findViewById(R.id.weatherNow);
-        TextView selectedDate = findViewById(R.id.dateInfor);
-        TextView rainInfo = findViewById(R.id.rainInfo);
-        TextView curTemperature = findViewById(R.id.curTemperature);
-        TextView windSpeed = findViewById(R.id.windSpeed);
-        TextView maxTemperature = findViewById(R.id.maxTemperature);
-        TextView minTemperature = findViewById(R.id.minTemperature);
+        HandlerThread handlerThread = new HandlerThread("mThread");
+        handlerThread.start();
+
+        Handler handler = new Handler(handlerThread.getLooper());
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                weatherInfor todayInfo = new weatherInfor();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        todayInfo.applyWeatherIcon(weatherIcon);
+                        selectedDate.setText(todayInfo.getPrintDate + " / " + todayInfo.getTime + "시");
+                        rainInfo.setText(todayInfo.showRainState() + "  " + todayInfo.rainPercent);
+                        curTemperature.setText(todayInfo.curTemperature);
+                        windSpeed.setText(todayInfo.windSpeed);
+                        maxTemperature.setText(todayInfo.maxTemperature);
+                        minTemperature.setText(todayInfo.minTemperature);
+                    }
+                });
+            }
+        });
 
         Button buttonMon = findViewById(R.id.mon);
         buttonMon.setOnClickListener(new View.OnClickListener(){

@@ -64,14 +64,14 @@ class WeatherInformation {
     public String searchWeather(String date, String time) throws IOException, JSONException {
         String bDate = date;
         String bTime = suitTime(time);
-        String type = "json";
-        String apiURL = "http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0";
+        String type = "JSON";
+        String apiURL = "http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst";
         String sKey = "g66JTL3Nwh2wI8viyg0hpgOZ3Ih9dborl9g4oOh42VYfoi5kDmMzi%2FB%2FMVz9wO9TRv3qtqtyfEBuBqspQFeTHw%3D%3D";
         StringBuilder urlBuilder = new StringBuilder(apiURL);
         urlBuilder.append("?" + URLEncoder.encode("ServiceKey", "UTF-8")+"="+sKey);
         urlBuilder.append("&" + URLEncoder.encode("nx", "UTF-8") + "=" + URLEncoder.encode("61", "UTF-8"));
         urlBuilder.append("&" + URLEncoder.encode("ny", "UTF-8") + "=" + URLEncoder.encode("128", "UTF-8"));
-        urlBuilder.append("&" + URLEncoder.encode("numOfRows","UTF-8") + "=" + URLEncoder.encode("10", "UTF-8"));
+        urlBuilder.append("&" + URLEncoder.encode("numOfRows","UTF-8") + "=" + URLEncoder.encode("1000", "UTF-8"));
         urlBuilder.append("&" + URLEncoder.encode("base_date", "UTF-8") + "=" + URLEncoder.encode(bDate, "UTF-8"));
         urlBuilder.append("&" + URLEncoder.encode("base_time", "UTF-8") + "=" + URLEncoder.encode(bTime, "UTF-8"));
         urlBuilder.append("&" + URLEncoder.encode("dataType", "UTF-8") + "=" + URLEncoder.encode(type, "UTF-8"));
