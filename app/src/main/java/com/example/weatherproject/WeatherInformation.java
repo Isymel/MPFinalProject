@@ -62,10 +62,11 @@ class WeatherInformation {
     }
 
     public String searchWeather(String date, String time) throws IOException, JSONException {
+        Log.i("Alert", "start");
         String bDate = date;
         String bTime = suitTime(time);
         String type = "JSON";
-        String apiURL = "http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst";
+        String apiURL = "http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst";
         String sKey = "g66JTL3Nwh2wI8viyg0hpgOZ3Ih9dborl9g4oOh42VYfoi5kDmMzi%2FB%2FMVz9wO9TRv3qtqtyfEBuBqspQFeTHw%3D%3D";
         StringBuilder urlBuilder = new StringBuilder(apiURL);
         urlBuilder.append("?" + URLEncoder.encode("ServiceKey", "UTF-8")+"="+sKey);
@@ -95,6 +96,7 @@ class WeatherInformation {
         rd.close();
         conn.disconnect();
         String result = sb.toString();
+        Log.i("Alert", result);
 
         JSONObject jsonObj_1 = new JSONObject(result);
         String response = jsonObj_1.getString("response");

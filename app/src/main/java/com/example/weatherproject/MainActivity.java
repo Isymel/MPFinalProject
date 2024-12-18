@@ -34,45 +34,58 @@ class weatherInfor{
     int todayOfWeek = mDate.getDayOfWeek().getValue();
 
     public weatherInfor(){
-        mDate = mDate.minusDays(30);
+        init();
     }
 
     public weatherInfor(int targetDayOfWeek) {
-        if (todayOfWeek != targetDayOfWeek) {
-            mDate = mDate.minusDays(todayOfWeek - targetDayOfWeek);
-        }
+        this.mDate = mDate.minusDays(todayOfWeek - targetDayOfWeek);
+        Log.i("Alert", "ChangedDate: "+mDate);
     }
 
-    DateTimeFormatter formatDate = DateTimeFormatter.ofPattern("yyyyMMdd");
     DateTimeFormatter formatDatePrint = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일");
-    String getDate = mDate.format(formatDate);
     String getPrintDate = mDate.format(formatDatePrint);
+    DateTimeFormatter formatHourPrint = DateTimeFormatter.ofPattern("HH");
+    String getPrintTime = mDate.format(formatHourPrint);
 
-    DateTimeFormatter formatHour = DateTimeFormatter.ofPattern("HH");
-    String getTime = mDate.format(formatHour);
+    void init() {
+        DateTimeFormatter formatDate = DateTimeFormatter.ofPattern("yyyyMMdd");
+        String getDate = mDate.format(formatDate);
 
-    WeatherInformation wi = new WeatherInformation();
-    String weatherInfo = null;
-    {
-        try {
-            weatherInfo = wi.searchWeather(getDate, getTime);
-            Log.i("weatherInfoData", weatherInfo);
-        } catch (IOException e) {
-            Log.i("THREE_ERROR1", e.getMessage());
-        } catch (JSONException e) {
-            Log.i("THREE_ERROR2", e.getMessage());
+        DateTimeFormatter formatHour = DateTimeFormatter.ofPattern("HH00");
+        String getTime = mDate.format(formatHour);
+
+        WeatherInformation wi = new WeatherInformation();
+        String weatherInfo = null;
+        {
+            try {
+                Log.i("Alert", getDate);
+                Log.i("Alert", getTime);
+                weatherInfo = wi.searchWeather(getDate, getTime);
+                Log.i("weatherInfoData", weatherInfo);
+            } catch (IOException e) {
+                Log.i("THREE_ERROR1", e.getMessage());
+            } catch (JSONException e) {
+                Log.i("THREE_ERROR2", e.getMessage());
+            }
         }
+        String[] weatherInforArray = weatherInfo.split(" ");
+
+        this.rainPercent = weatherInforArray[0];
+        this.rainState = weatherInforArray[1];
+        this.cloudState = weatherInforArray[2];
+        this.curTemperature = weatherInforArray[3];
+        this.minTemperature = weatherInforArray[4];
+        this.maxTemperature = weatherInforArray[5];
+        this.windSpeed = weatherInforArray[6];
     }
 
-    String[] weatherInforArray = weatherInfo.split(" ");
-
-    String rainPercent = weatherInforArray[0];
-    String rainState = weatherInforArray[1];
-    String cloudState = weatherInforArray[2];
-    String curTemperature = weatherInforArray[3];
-    String minTemperature = weatherInforArray[4];
-    String maxTemperature = weatherInforArray[5];
-    String windSpeed = weatherInforArray[6];
+    String rainPercent;
+    String rainState;
+    String cloudState;
+    String curTemperature;
+    String minTemperature;
+    String maxTemperature;
+    String windSpeed;
 
     public String showRainState(){
         if(this.rainState.equals("rainy"))
@@ -112,7 +125,7 @@ class weatherInfor{
             if(this.cloudState.equals("perfectClear"))
                 iv.setImageResource(R.drawable.perfectclear);
             else if(this.cloudState.equals("veryClear"))
-                iv.setImageResource(R.drawable.veryclear);
+                iv.setImageResource(R.drawable.vclear);
             else if(this.cloudState.equals("aLittleClear"))
                 iv.setImageResource(R.drawable.alittleclear);
             else if(this.cloudState.equals("cloudy"))
@@ -179,7 +192,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         todayInfo.applyWeatherIcon(weatherIcon);
-                        selectedDate.setText(todayInfo.getPrintDate + " / " + todayInfo.getTime + "시");
+                        selectedDate.setText(todayInfo.getPrintDate + " / " + todayInfo.getPrintTime + "시");
                         rainInfo.setText(todayInfo.showRainState() + "  " + todayInfo.rainPercent);
                         curTemperature.setText(todayInfo.curTemperature);
                         windSpeed.setText(todayInfo.windSpeed);
@@ -194,14 +207,25 @@ public class MainActivity extends AppCompatActivity {
         buttonMon.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
-                weatherInfor monInfo = new weatherInfor(1);
-                monInfo.applyWeatherIcon(weatherIcon);
-                selectedDate.setText(monInfo.getPrintDate + " / " + monInfo.getTime + "시");
-                rainInfo.setText(monInfo.showRainState() + "  " + monInfo.rainPercent);
-                curTemperature.setText(monInfo.curTemperature);
-                windSpeed.setText(monInfo.windSpeed);
-                maxTemperature.setText(monInfo.maxTemperature);
-                minTemperature.setText(monInfo.minTemperature);
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        weatherInfor monInfo = new weatherInfor(1);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                monInfo.applyWeatherIcon(weatherIcon);
+                                selectedDate.setText(monInfo.getPrintDate + " / " + monInfo.getPrintTime + "시");
+                                rainInfo.setText(monInfo.showRainState() + "  " + monInfo.rainPercent);
+                                curTemperature.setText(monInfo.curTemperature);
+                                windSpeed.setText(monInfo.windSpeed);
+                                maxTemperature.setText(monInfo.maxTemperature);
+                                minTemperature.setText(monInfo.minTemperature);
+                            }
+                        });
+                    }
+                });
+
             }
         });
 
@@ -209,14 +233,25 @@ public class MainActivity extends AppCompatActivity {
         buttonTue.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
-                weatherInfor tueInfo = new weatherInfor(2);
-                tueInfo.applyWeatherIcon(weatherIcon);
-                selectedDate.setText(tueInfo.getPrintDate + " / " + tueInfo.getTime + "시");
-                rainInfo.setText(tueInfo.showRainState() + "  " + tueInfo.rainPercent);
-                curTemperature.setText(tueInfo.curTemperature);
-                windSpeed.setText(tueInfo.windSpeed);
-                maxTemperature.setText(tueInfo.maxTemperature);
-                minTemperature.setText(tueInfo.minTemperature);
+                handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    weatherInfor tueInfo = new weatherInfor(2);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Log.i("Alert", "Operate");
+                            tueInfo.applyWeatherIcon(weatherIcon);
+                            selectedDate.setText(tueInfo.getPrintDate + " / " + tueInfo.getPrintTime + "시");
+                            rainInfo.setText(tueInfo.showRainState() + "  " + tueInfo.rainPercent);
+                            curTemperature.setText(tueInfo.curTemperature);
+                            windSpeed.setText(tueInfo.windSpeed);
+                            maxTemperature.setText(tueInfo.maxTemperature);
+                            minTemperature.setText(tueInfo.minTemperature);
+                        }
+                    });
+                }
+            });
             }
         });
 
@@ -224,14 +259,24 @@ public class MainActivity extends AppCompatActivity {
         buttonWed.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
-                weatherInfor wedInfo = new weatherInfor(3);
-                wedInfo.applyWeatherIcon(weatherIcon);
-                selectedDate.setText(wedInfo.getPrintDate + " / " + wedInfo.getTime + "시");
-                rainInfo.setText(wedInfo.showRainState() + "  " + wedInfo.rainPercent);
-                curTemperature.setText(wedInfo.curTemperature);
-                windSpeed.setText(wedInfo.windSpeed);
-                maxTemperature.setText(wedInfo.maxTemperature);
-                minTemperature.setText(wedInfo.minTemperature);
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        weatherInfor wedInfo = new weatherInfor(3);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                wedInfo.applyWeatherIcon(weatherIcon);
+                                selectedDate.setText(wedInfo.getPrintDate + " / " + wedInfo.getPrintTime + "시");
+                                rainInfo.setText(wedInfo.showRainState() + "  " + wedInfo.rainPercent);
+                                curTemperature.setText(wedInfo.curTemperature);
+                                windSpeed.setText(wedInfo.windSpeed);
+                                maxTemperature.setText(wedInfo.maxTemperature);
+                                minTemperature.setText(wedInfo.minTemperature);
+                            }
+                        });
+                    }
+                });
             }
         });
 
@@ -239,14 +284,24 @@ public class MainActivity extends AppCompatActivity {
         buttonThu.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
-                weatherInfor thuInfo = new weatherInfor(4);
-                thuInfo.applyWeatherIcon(weatherIcon);
-                selectedDate.setText(thuInfo.getPrintDate + " / " + thuInfo.getTime + "시");
-                rainInfo.setText(thuInfo.showRainState() + "  " + thuInfo.rainPercent);
-                curTemperature.setText(thuInfo.curTemperature);
-                windSpeed.setText(thuInfo.windSpeed);
-                maxTemperature.setText(thuInfo.maxTemperature);
-                minTemperature.setText(thuInfo.minTemperature);
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        weatherInfor thuInfo = new weatherInfor(4);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                thuInfo.applyWeatherIcon(weatherIcon);
+                                selectedDate.setText(thuInfo.getPrintDate + " / " + thuInfo.getPrintTime + "시");
+                                rainInfo.setText(thuInfo.showRainState() + "  " + thuInfo.rainPercent);
+                                curTemperature.setText(thuInfo.curTemperature);
+                                windSpeed.setText(thuInfo.windSpeed);
+                                maxTemperature.setText(thuInfo.maxTemperature);
+                                minTemperature.setText(thuInfo.minTemperature);
+                            }
+                        });
+                    }
+                });
             }
         });
 
@@ -254,14 +309,24 @@ public class MainActivity extends AppCompatActivity {
         buttonFri.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
-                weatherInfor friInfo = new weatherInfor(5);
-                friInfo.applyWeatherIcon(weatherIcon);
-                selectedDate.setText(friInfo.getPrintDate + " / " + friInfo.getTime + "시");
-                rainInfo.setText(friInfo.showRainState() + "  " + friInfo.rainPercent);
-                curTemperature.setText(friInfo.curTemperature);
-                windSpeed.setText(friInfo.windSpeed);
-                maxTemperature.setText(friInfo.maxTemperature);
-                minTemperature.setText(friInfo.minTemperature);
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        weatherInfor friInfo = new weatherInfor(5);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                friInfo.applyWeatherIcon(weatherIcon);
+                                selectedDate.setText(friInfo.getPrintDate + " / " + friInfo.getPrintTime + "시");
+                                rainInfo.setText(friInfo.showRainState() + "  " + friInfo.rainPercent);
+                                curTemperature.setText(friInfo.curTemperature);
+                                windSpeed.setText(friInfo.windSpeed);
+                                maxTemperature.setText(friInfo.maxTemperature);
+                                minTemperature.setText(friInfo.minTemperature);
+                            }
+                        });
+                    }
+                });
             }
         });
 
@@ -269,14 +334,24 @@ public class MainActivity extends AppCompatActivity {
         buttonSat.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
-                weatherInfor satInfo = new weatherInfor(6);
-                satInfo.applyWeatherIcon(weatherIcon);
-                selectedDate.setText(satInfo.getPrintDate + " / " + satInfo.getTime + "시");
-                rainInfo.setText(satInfo.showRainState() + "  " + satInfo.rainPercent);
-                curTemperature.setText(satInfo.curTemperature);
-                windSpeed.setText(satInfo.windSpeed);
-                maxTemperature.setText(satInfo.maxTemperature);
-                minTemperature.setText(satInfo.minTemperature);
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        weatherInfor satInfo = new weatherInfor(6);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                satInfo.applyWeatherIcon(weatherIcon);
+                                selectedDate.setText(satInfo.getPrintDate + " / " + satInfo.getPrintTime + "시");
+                                rainInfo.setText(satInfo.showRainState() + "  " + satInfo.rainPercent);
+                                curTemperature.setText(satInfo.curTemperature);
+                                windSpeed.setText(satInfo.windSpeed);
+                                maxTemperature.setText(satInfo.maxTemperature);
+                                minTemperature.setText(satInfo.minTemperature);
+                            }
+                        });
+                    }
+                });
             }
         });
 
@@ -284,14 +359,24 @@ public class MainActivity extends AppCompatActivity {
         buttonSun.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
-                weatherInfor sunInfo = new weatherInfor(7);
-                sunInfo.applyWeatherIcon(weatherIcon);
-                selectedDate.setText(sunInfo.getPrintDate + " / " + sunInfo.getTime + "시");
-                rainInfo.setText(sunInfo.showRainState() + "  " + sunInfo.rainPercent);
-                curTemperature.setText(sunInfo.curTemperature);
-                windSpeed.setText(sunInfo.windSpeed);
-                maxTemperature.setText(sunInfo.maxTemperature);
-                minTemperature.setText(sunInfo.minTemperature);
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        weatherInfor sunInfo = new weatherInfor(7);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                sunInfo.applyWeatherIcon(weatherIcon);
+                                selectedDate.setText(sunInfo.getPrintDate + " / " + sunInfo.getPrintTime + "시");
+                                rainInfo.setText(sunInfo.showRainState() + "  " + sunInfo.rainPercent);
+                                curTemperature.setText(sunInfo.curTemperature);
+                                windSpeed.setText(sunInfo.windSpeed);
+                                maxTemperature.setText(sunInfo.maxTemperature);
+                                minTemperature.setText(sunInfo.minTemperature);
+                            }
+                        });
+                    }
+                });
             }
         });
 
